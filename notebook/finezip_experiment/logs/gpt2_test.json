@@ -1,0 +1,17 @@
+{
+  "model": "gpt2",
+  "purpose": "FineZip pipeline validation",
+  "context_size": 32,
+  "batch_size": 1,
+  "input_file": "/kaggle/working/finezip_experiment/data/text_test.txt",
+  "compressed_file": "/kaggle/working/finezip_experiment/gpt2_32_1.gpz",
+  "decoded_file": "/kaggle/working/finezip_experiment/data/text_test_decoded.txt",
+  "original_size_bytes": 315,
+  "compressed_size_bytes": 145,
+  "compression_ratio": 2.1724137931034484,
+  "compression_time_seconds": 1.1746998789999452,
+  "decompression_time_seconds": 0.9306973409999841,
+  "lossless": true,
+  "gpu": "Tesla T4",
+  "gpu_peak_memory_mib": 991.17333984375
+}
