@@ -1,0 +1,15 @@
+{
+  "method": "LLMZip-lite",
+  "model": "gpt2",
+  "context": 32,
+  "batch_size": 1,
+  "original_bytes": 1000000,
+  "compressed_bytes": 186860,
+  "compression_ratio": 5.351600128438403,
+  "compression_time_seconds": 2905.9290929399995,
+  "decompression_time_seconds": 2851.3187257579993,
+  "gpu": "Tesla T4",
+  "peak_gpu_allocated_mib_encode": 995.7470703125,
+  "peak_gpu_reserved_mib_encode": 1068.0,
+  "lossless": true
+}
