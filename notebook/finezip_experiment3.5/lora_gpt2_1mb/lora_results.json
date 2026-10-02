@@ -1,0 +1,23 @@
+{
+  "model": "gpt2",
+  "input_file": "/kaggle/working/finezip_experiment/data/baseline_1mb.txt",
+  "input_bytes": 1000000,
+  "tokens": 286273,
+  "training_blocks": 559,
+  "block_size": 512,
+  "lora_r": 8,
+  "lora_alpha": 16,
+  "lora_dropout": 0.05,
+  "epochs": 1,
+  "batch_size": 2,
+  "gradient_accumulation": 4,
+  "learning_rate": 0.0002,
+  "loss_before": 3.0574553489685057,
+  "perplexity_before": 21.273354963782854,
+  "loss_after": 2.9733620166778563,
+  "perplexity_after": 19.557562038458965,
+  "training_time_seconds": 48.61430096626282,
+  "peak_gpu_allocated_mib": 2749.2373046875,
+  "peak_gpu_reserved_mib": 3024.0,
+  "adapter_dir": "/kaggle/working/finezip_experiment/lora_gpt2_1mb"
+}
