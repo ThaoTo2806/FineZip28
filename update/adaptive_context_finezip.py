@@ -419,7 +419,7 @@ def demo_mock():
 # ----------------------------------------------------------------------------
 # 8. Chạy thật trên Kaggle (GPT-2 + 1 MB enwik8)
 # ----------------------------------------------------------------------------
-def demo_gpt2(path="/kaggle/working/finezip_experiment/data/baseline_1mb.txt"):
+def demo_gpt2(path="/kaggle/working/FineZip28/notebook/finezip_experiment3.5/data/baseline_1mb.txt"):
     import time
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained("gpt2")

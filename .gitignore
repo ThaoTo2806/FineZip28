@@ -1,5 +1,4 @@
 .env
-**.gpz
 /finetuned_models
 /datasets
 /checkpoints

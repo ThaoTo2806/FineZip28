@@ -6,7 +6,7 @@
 import sys
 import os
 
-AC_DIR = r"/kaggle/working/finezip/AC"
+AC_DIR = r"/kaggle/working/FineZip28/AC"
 
 if AC_DIR not in sys.path:
     sys.path.insert(0, AC_DIR)

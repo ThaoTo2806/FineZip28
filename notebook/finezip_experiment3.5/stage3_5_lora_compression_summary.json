@@ -3,12 +3,12 @@
     "context": 128,
     "return_code": 1,
     "wall_time_seconds": 11.378806114196777,
-    "output_dir": "/kaggle/working/finezip_experiment/lora_gpt2_ctx128"
+    "output_dir": "/kaggle/working/FineZip28/notebook/finezip_experiment3.5/lora_gpt2_ctx128"
   },
   {
     "context": 512,
     "return_code": 1,
     "wall_time_seconds": 8.760736227035522,
-    "output_dir": "/kaggle/working/finezip_experiment/lora_gpt2_ctx512"
+    "output_dir": "/kaggle/working/FineZip28/notebook/finezip_experiment3.5/lora_gpt2_ctx512"
   }
 ]

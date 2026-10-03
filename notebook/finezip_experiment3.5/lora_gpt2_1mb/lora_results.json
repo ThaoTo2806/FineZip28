@@ -1,6 +1,6 @@
 {
   "model": "gpt2",
-  "input_file": "/kaggle/working/finezip_experiment/data/baseline_1mb.txt",
+  "input_file": "/kaggle/working/FineZip28/notebook/finezip_experiment3.5/data/baseline_1mb.txt",
   "input_bytes": 1000000,
   "tokens": 286273,
   "training_blocks": 559,
@@ -19,5 +19,5 @@
   "training_time_seconds": 48.61430096626282,
   "peak_gpu_allocated_mib": 2749.2373046875,
   "peak_gpu_reserved_mib": 3024.0,
-  "adapter_dir": "/kaggle/working/finezip_experiment/lora_gpt2_1mb"
+  "adapter_dir": "/kaggle/working/FineZip28/notebook/finezip_experiment3.5/lora_gpt2_1mb"
 }
