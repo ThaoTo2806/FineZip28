@@ -1,0 +1,5 @@
+The quick brown fox jumps over the lazy dog.
+FineZip is a language-model-based text compression system.
+This experiment is used to validate the compression pipeline.
+GPT-2 is used here for pipeline validation before testing larger models.
+Lossless compression means that the original text can be recovered exactly.

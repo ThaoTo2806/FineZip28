@@ -1,0 +1,14 @@
+FineZip : Pushing the Limits of Large Language Models for Practical Lossless Text Compression
+‒	Ý tưởng bài báo: 
+FineZip nghiên cứu sử dụng LLM cho nén văn bản không mất dữ liệu (lossless text compression), khai thác khả năng dự đoán token của mô hình ngôn ngữ để biểu diễn dữ liệu hiệu quả hơn.  Các phương pháp như LLMZip có tỷ lệ nén tốt nhưng rất chậm; bài báo cho thấy nén 10 MB bằng LLMZip có thể mất khoảng 9,5 ngày. FineZip kết hợp offline pretrained LLM với online memorization, trong đó LoRA được dùng để thích nghi mô hình với chính văn bản cần nén.  Điểm quan trọng thứ hai là Dynamic Context Window, chia văn bản thành các chunk và cho phép xử lý nhiều token song song thay vì sliding window hoàn toàn tuần tự.  Các rank do LLM sinh ra sau đó tiếp tục được nén bằng thuật toán truyền thống như BZip2. FineZip giảm thời gian nén từ khoảng 227 giờ xuống dưới 4 giờ trên 10 MB enwik8, tương đương tăng tốc khoảng 54 lần với mức suy giảm tỷ lệ nén nhỏ. Bài toán cốt lõi vì vậy là tối ưu trade-off giữa compression ratio – context size – tốc độ – tài nguyên tính toán.
+‒	Công việc của nhóm:
+	Nghiên cứu FineZip, tập trung vào LLM-based compression, online memorization bằng LoRA, Dynamic Context Window(GỐC PAPER) và rank-based compression.  
+	Cài đặt mã nguồn FineZip và chạy thử trên enwik8 hoặc tập văn bản nhỏ 1–10 MB; có thể sử dụng LLM nhỏ hơn thay cho LLaMA-3 8B để phù hợp tài nguyên. (giai đoạn 1)
+	Xây dựng baseline gồm gzip/BZip2 -> LLMZip rút gọn -> FineZip rút gọn; đánh giá compression ratio, compression/decompression time và memory. (giai đoạn 2)
+	Thực nghiệm các context size khác nhau, chẳng hạn 32, 64, 128, 256, 512 token; phân tích ảnh hưởng đến tỷ lệ nén và thời gian. (giai đoạn 3)
+	Đề xuất Adaptive Context(CẢI TIẾN) FineZip: thay context size cố định bằng thuật toán tự động chọn context theo đặc trưng đoạn văn như entropy, mức lặp hoặc khả năng dự đoán token của LLM. (giai đoạn 4)
+	So sánh Fixed Context vs. Adaptive Context theo compression ratio – thời gian nén/giải nén – memory; đánh giá mức tiết kiệm tính toán khi giữ chất lượng nén tương đương. (giai đoạn 5)
+	Thực hiện ablation study để xác định ảnh hưởng của context size, LoRA/online memorization và thuật toán adaptive; phân tích trường hợp phương pháp đề xuất hiệu quả hoặc thất bại. (giai đoạn 5)
+‒	Sản phẩm:
+	Source code có hướng dẫn
+	Script chuẩn bị dữ liệu, cấu hình thí nghiệm; 
