@@ -64,13 +64,20 @@ def est_time(L: int) -> float:
 #    Quy ước hạng: sắp giảm dần theo logit, hoà thì token id nhỏ đứng trước (stable).
 # ----------------------------------------------------------------------------
 class HFLM:
-    def __init__(self, name="gpt2", device="cuda"):
+    def __init__(self, name="gpt2", device="cuda", max_batch_tokens=1024):
         import torch
         from transformers import AutoModelForCausalLM
+        if max_batch_tokens < 1:
+            raise ValueError("max_batch_tokens must be positive")
         self.t, self.device = torch, device
+        self.max_batch_tokens = max_batch_tokens
         self.model = AutoModelForCausalLM.from_pretrained(name).to(device).eval()
         self.bos = self.model.config.bos_token_id  # GPT-2: 50256
         self.V = self.model.config.vocab_size
+
+    def batch_size(self, length, requested):
+        """Bound the forward batch by the logits tensor size [B, length, V]."""
+        return max(1, min(requested, self.max_batch_tokens // length))
 
     def _logits(self, ids):
         with self.t.no_grad():
@@ -83,8 +90,14 @@ class HFLM:
         y = t.as_tensor(tgt, device=self.device)[..., None]
         tl = lg.gather(-1, y)
         bits = -(t.log_softmax(lg, -1).gather(-1, y).squeeze(-1)) / math.log(2)
-        idx = t.arange(lg.shape[-1], device=self.device)
-        rank = (lg > tl).sum(-1) + ((lg == tl) & (idx < y)).sum(-1)
+        rank = t.zeros(tl.shape[:-1], dtype=t.int64, device=self.device)
+        # Avoid a second full [B,T,V] comparison tensor on small Kaggle GPUs.
+        for start in range(0, lg.shape[-1], 8192):
+            stop = min(start + 8192, lg.shape[-1])
+            scores = lg[..., start:stop]
+            idx = t.arange(start, stop, device=self.device)
+            rank += (scores > tl).sum(-1)
+            rank += ((scores == tl) & (idx < y)).sum(-1)
         return bits.cpu().numpy(), rank.cpu().numpy()
 
     def pick(self, inp, pos, ranks):
@@ -148,8 +161,9 @@ def make_batch(toks, starts, L, bos):
 def run_score(toks, starts, L, lm, batch):
     """-> bits[N], ranks[N,L] cho các chunk (start, L)."""
     bits, ranks = [], []
-    for i in range(0, len(starts), batch):
-        inp, tgt = make_batch(toks, starts[i:i + batch], L, lm.bos)
+    effective_batch = lm.batch_size(L, batch) if hasattr(lm, "batch_size") else batch
+    for i in range(0, len(starts), effective_batch):
+        inp, tgt = make_batch(toks, starts[i:i + effective_batch], L, lm.bos)
         b, r = lm.score(inp, tgt)
         bits.append(b.sum(1)); ranks.append(r)
     return np.concatenate(bits), np.concatenate(ranks)
@@ -372,8 +386,9 @@ def decode(blob, lm, batch=8):
     out = np.zeros(n_pad, np.int64)
     for L in sorted({l for _, l in leaves}):
         starts = [s for s, l in leaves if l == L]
-        for i in range(0, len(starts), batch):
-            ss = starts[i:i + batch]
+        effective_batch = lm.batch_size(L, batch) if hasattr(lm, "batch_size") else batch
+        for i in range(0, len(starts), effective_batch):
+            ss = starts[i:i + effective_batch]
             R = np.stack([rk[s] for s in ss])
             inp = np.full((len(ss), L), lm.bos, np.int64)       # LUÔN cùng shape [B,L] như encode
             dec = np.zeros((len(ss), L), np.int64)
@@ -423,6 +438,8 @@ def demo_gpt2(path="/kaggle/working/FineZip28/notebook/finezip_experiment3.5/dat
     import time
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained("gpt2")
+    # The file is deliberately tokenized in full; model calls remain chunked.
+    tok.model_max_length = 10**9
     text = open(path, encoding="utf-8").read()
     tokens = np.array(tok(text)["input_ids"], dtype=np.int64)
     lm = HFLM("gpt2")
