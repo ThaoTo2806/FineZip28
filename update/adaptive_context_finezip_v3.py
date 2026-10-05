@@ -20,14 +20,19 @@ Hai chính sách (policy) chọn layout
                        Cần 1 lần teacher-forcing cho mỗi mức L (chi phí chỉ ở phía encode).
 
 Mã hoá: rank-based như FineZip (rank của token thật -> uint16 -> bz2).
+v3: file nén ghi lại batch hiệu dụng của từng mức L; decode() đọc từ file chứ KHÔNG dùng tham số batch,
+    nên giải nén luôn dùng đúng shape [B, L] như lúc nén (nguyên nhân gốc của lỗi rank lệch).
 Chạy thử với MockLM trên CPU:   python adaptive_context_finezip.py
 Chạy thật với GPT-2 (Kaggle):   xem hàm demo_gpt2() cuối file.
 """
 from __future__ import annotations
 
 import bz2
+import hashlib
+import json
 import math
 import struct
+import warnings
 import zlib
 import numpy as np
 
@@ -48,7 +53,7 @@ def fit_time_model(ctxs, times_s, n_tokens):
 
 TIME_A, TIME_B = fit_time_model(CTX_SIZES, [61.63, 67.17, 82.95, 114.33, 178.82], 286273)
 FILE_MAGIC = b"FZAC"
-FILE_VERSION = 2   # v2: thêm "escape" cho vị trí rank không ổn định (xem mục 6)
+FILE_VERSION = 3   # v3: header lưu KẾ HOẠCH BATCH theo L + fingerprint mô hình + thẻ môi trường (xem mục 6)
 
 
 def est_time(L: int) -> float:
@@ -70,6 +75,7 @@ class HFLM:
         if max_batch_tokens < 1:
             raise ValueError("max_batch_tokens must be positive")
         self.t, self.device = torch, device
+        self.name = name
         self.max_batch_tokens = max_batch_tokens
         self.eps = eps   # ngưỡng "không ổn định" (logit). None = tắt escape. Hiệu chỉnh bằng calibrate_eps().
         self.model = AutoModelForCausalLM.from_pretrained(name).to(device).eval()
@@ -79,6 +85,19 @@ class HFLM:
     def batch_size(self, length, requested):
         """Bound the forward batch by the logits tensor size [B, length, V]."""
         return max(1, min(requested, self.max_batch_tokens // length))
+
+    def describe(self):
+        """-> (cfg, env). cfg = định danh mô hình (BẮT BUỘC khớp khi giải nén).
+        env = phần cứng/thư viện ảnh hưởng số học (chỉ cảnh báo nếu khác)."""
+        t = self.t
+        cfg = {"name": self.name, "V": int(self.V), "bos": int(self.bos),
+               "dtype": str(next(self.model.parameters()).dtype),
+               "attn": str(getattr(self.model.config, "_attn_implementation", "unknown"))}
+        env = {"torch": str(t.__version__), "cuda": str(t.version.cuda),
+               "gpu": t.cuda.get_device_name(self.device) if str(self.device).startswith("cuda") else "cpu",
+               "tf32": bool(t.backends.cuda.matmul.allow_tf32),
+               "matmul_precision": str(t.get_float32_matmul_precision())}
+        return cfg, env
 
     def _logits(self, ids):
         with self.t.no_grad():
@@ -120,8 +139,9 @@ class MockLM:
     """LM giả chạy CPU để test logic: bigram prior + 'copy bonus' (kiểu induction head).
     Vùng lặp dài => cần context dài mới dự đoán tốt; vùng ngẫu nhiên => context không giúp gì."""
 
-    def __init__(self, V=64, seed=0, bonus=6.0, noise=0.0, eps=None):
+    def __init__(self, V=64, seed=0, bonus=6.0, noise=0.0, eps=None, noise_seed=0, max_batch_tokens=1024):
         self.V, self.bos, self.bonus, self.noise, self.eps = V, V - 1, bonus, noise, eps
+        self.seed, self.noise_seed, self.max_batch_tokens = seed, noise_seed, max_batch_tokens
         self.prior = np.random.default_rng(seed).normal(0, 1, (V, V)).astype(np.float32)
 
     def _lg(self, inp, pos):
@@ -132,7 +152,7 @@ class MockLM:
                 if len(hit):
                     lg[b, inp[b, hit[-1] + 2]] += self.bonus
         if self.noise:   # mô phỏng nhiễu số học phụ thuộc kích thước batch B (giống GPU thật)
-            lg += self.noise * np.random.default_rng(7919 * inp.shape[0] + pos).standard_normal(lg.shape)
+            lg += self.noise * np.random.default_rng(7919 * inp.shape[0] + pos + 104729 * self.noise_seed).standard_normal(lg.shape)
         return lg
 
     def score(self, inp, tgt):
@@ -155,6 +175,14 @@ class MockLM:
         order = np.argsort(-self._lg(inp, pos), axis=1, kind="stable")
         return order[np.arange(len(ranks)), ranks]
 
+    def batch_size(self, length, requested):
+        return max(1, min(requested, self.max_batch_tokens // length))
+
+    def describe(self):
+        cfg = {"name": "mock", "V": self.V, "bos": self.bos, "seed": self.seed, "bonus": self.bonus}
+        env = {"noise": self.noise, "noise_seed": self.noise_seed}
+        return cfg, env
+
 
 # ----------------------------------------------------------------------------
 # 3. Tiện ích chunk
@@ -171,12 +199,14 @@ def make_batch(toks, starts, L, bos):
     return inp, tgt
 
 
-def run_score(toks, starts, L, lm, batch):
-    """-> bits[N], ranks[N,L], unstable[N,L] cho các chunk (start, L)."""
+def run_score(toks, starts, L, lm, batch, eff=None):
+    """-> bits[N], ranks[N,L], unstable[N,L] cho các chunk (start, L).
+    eff = batch hiệu dụng ÉP DÙNG (kế hoạch batch lưu trong file). None -> suy ra từ lm.batch_size."""
     bits, ranks, uns = [], [], []
-    effective_batch = lm.batch_size(L, batch) if hasattr(lm, "batch_size") else batch
-    for i in range(0, len(starts), effective_batch):
-        inp, tgt = make_batch(toks, starts[i:i + effective_batch], L, lm.bos)
+    if eff is None:
+        eff = lm.batch_size(L, batch) if hasattr(lm, "batch_size") else batch
+    for i in range(0, len(starts), eff):
+        inp, tgt = make_batch(toks, starts[i:i + eff], L, lm.bos)
         b, r, u = lm.score(inp, tgt)
         bits.append(b.sum(1)); ranks.append(r); uns.append(u)
     return np.concatenate(bits), np.concatenate(ranks), np.concatenate(uns)
@@ -337,29 +367,60 @@ def analyze_features(toks, bits_by_level):
 
 
 # ----------------------------------------------------------------------------
-# 6. Encode / Decode
+# 6. Encode / Decode   (định dạng v3)
 #
-#    VÌ SAO CẦN "ESCAPE":  rank = số token có logit lớn hơn token thật. Logit tính bằng float32 trên GPU
-#    thay đổi ~1e-4..1e-3 khi đổi kích thước batch / GPU / thứ tự cộng. Nếu có token khác nằm sát
-#    logit của token thật (|Δ| < eps) thì hạng có thể lệch 1 ở phía giải nén -> chọn sai token ->
-#    cả phần còn lại của chunk sai theo (tự hồi quy). Cách xử lý:
-#       encoder phát hiện các vị trí "không ổn định" (unstable), KHÔNG tin rank ở đó mà lưu thẳng
-#       token id (escape). Decoder gặp vị trí escape thì dùng token đã lưu thay vì rank.
-#    => đúng bất kể batch/GPU, miễn nhiễu thực tế < eps (đo bằng calibrate_eps).
+#    NGUYÊN NHÂN LỖI RANK LỆCH: logit float32 trên GPU phụ thuộc kích thước batch B (đo được ~1e-2 giữa
+#    B=1/2/4 với GPT-2 trên T4). Cùng shape [B,L] thì encode và decode cho logit GIỐNG HỆT (kể cả khi các vị trí
+#    sau p là placeholder: đo được Δ = 0). Vì vậy:
+#      (1) Header lưu batch hiệu dụng của từng mức L; decode/quick_check LUÔN dùng đúng kế hoạch này
+#          (tham số `batch` của decode bị bỏ qua) -> không thể giải nén bằng shape khác lúc nén.
+#      (2) Header lưu fingerprint mô hình (tên, vocab, bos, dtype, attention). Khác -> từ chối giải nén.
+#      (3) Header lưu thẻ môi trường (torch, CUDA, GPU, TF32). Khác -> cảnh báo: lossless chỉ được đảm bảo
+#          trên cùng môi trường, trừ khi file nén có escape (eps>0) đủ lớn so với nhiễu liên-môi-trường.
+#      (4) Escape (tuỳ chọn, eps>0): token có logit cách token thật < eps được lưu thẳng thay vì rank.
 #
-#    File v2 = [magic 4][ver u8][rank width u8][reserved u16][n_tokens u32][n_flags u32][n_esc u32]
-#              [flags đóng gói bit][len_ranks u32][bz2(ranks)][bz2(esc_pos_delta u32 ++ esc_token)]
+#    Nhóm batch: các chunk cùng L, sắp theo start, cắt liên tiếp mỗi nhóm `plan[L]` chunk
+#    (nhóm cuối có thể nhỏ hơn; cả encode lẫn decode cắt giống nhau).
+#
+#    File v3 = [magic 4][ver u8][rank width u8][reserved u16][n_tokens u32][n_flags u32][n_esc u32]
+#              [fingerprint 8][eps f32][plan: batch cho L=32,64,128,256,512 (5×u16)]
+#              [env_len u16][env json][flags đóng gói bit][len_ranks u32][bz2(ranks)]
+#              [bz2(esc_pos_delta u32 ++ esc_token)]
 # ----------------------------------------------------------------------------
-_HDR = "<4sBBHIII"
+_HDR = "<4sBBHIII8sf5H"
+
+
+def _fingerprint(lm):
+    cfg, env = lm.describe()
+    fp = hashlib.sha256(json.dumps(cfg, sort_keys=True).encode()).digest()[:8]
+    return fp, cfg, json.dumps(env, sort_keys=True, separators=(",", ":"))
+
+
+def _read_header(blob):
+    hs = struct.calcsize(_HDR)
+    if len(blob) < hs + 2:
+        raise ValueError("truncated FineZip header")
+    magic, ver, rank_width, _, n, nf, n_esc, fp, eps, *plan = struct.unpack_from(_HDR, blob, 0)
+    if magic != FILE_MAGIC:
+        raise ValueError("not a FineZip-adaptive file")
+    if ver != FILE_VERSION:
+        raise ValueError("unsupported FineZip file version %d (cần v%d: hãy nén lại bằng encode() mới)" % (ver, FILE_VERSION))
+    if any(b < 1 or b > 4096 for b in plan):
+        raise ValueError("invalid batch plan in header")
+    (env_len,) = struct.unpack_from("<H", blob, hs)
+    env = blob[hs + 2:hs + 2 + env_len].decode("utf-8")
+    return dict(rank_width=rank_width, n=n, nf=nf, n_esc=n_esc, fp=fp, eps=eps,
+                plan=dict(zip(CTX_SIZES, plan)), env=env, off=hs + 2 + env_len)
 
 
 def encode(tokens, lm, policy, batch=8):
     toks = pad_tokens(tokens, lm.bos)
     leaves = policy(toks, lm, batch)
+    plan = {L: int(lm.batch_size(L, batch)) if hasattr(lm, "batch_size") else int(batch) for L in CTX_SIZES}
     rank_of, esc_pos, esc_tok = {}, [], []
     for L in sorted({l for _, l in leaves}):
         starts = [s for s, l in leaves if l == L]
-        _, r, u = run_score(toks, starts, L, lm, batch)
+        _, r, u = run_score(toks, starts, L, lm, batch, eff=plan[L])      # ép dùng đúng kế hoạch đã ghi
         for i, s in enumerate(starts):
             ri = r[i].copy()
             ri[u[i]] = 0                                   # vị trí escape: rank không dùng -> 0 cho dễ nén
@@ -376,32 +437,46 @@ def encode(tokens, lm, policy, batch=8):
     delta = np.diff(esc_pos, prepend=0).astype("<u4")
     esc_blob = bz2.compress(delta.tobytes() + esc_tok.astype(rank_dtype).tobytes(), 9) if len(esc_pos) else b""
     rk_blob = bz2.compress(ranks.tobytes(), 9)
-    head = struct.pack(_HDR, FILE_MAGIC, FILE_VERSION, rank_width, 0, len(tokens), len(flags), len(esc_pos))
+    fp, _, env = _fingerprint(lm)
+    eps = float(getattr(lm, "eps", None) or 0.0)
+    envb = env.encode("utf-8")
+    head = struct.pack(_HDR, FILE_MAGIC, FILE_VERSION, rank_width, 0, len(tokens), len(flags), len(esc_pos),
+                       fp, eps, *[plan[L] for L in CTX_SIZES])
+    head += struct.pack("<H", len(envb)) + envb
     head += np.packbits(np.array(flags, np.uint8)).tobytes() + struct.pack("<I", len(rk_blob))
     encode.last_stats = {"escapes": int(len(esc_pos)), "escape_pct": 100.0 * len(esc_pos) / max(1, len(toks)),
-                         "esc_bytes": len(esc_blob), "total_bytes": len(head) + len(rk_blob) + len(esc_blob)}
+                         "esc_bytes": len(esc_blob), "total_bytes": len(head) + len(rk_blob) + len(esc_blob),
+                         "header_bytes": len(head), "batch_plan": plan, "eps": eps}
     return head + rk_blob + esc_blob, leaves
 
 
 def _parse(blob, lm):
-    hs = struct.calcsize(_HDR)
-    if len(blob) < hs:
-        raise ValueError("truncated FineZip header")
-    magic, ver, rank_width, _, n, nf, n_esc = struct.unpack_from(_HDR, blob, 0)
-    if magic != FILE_MAGIC or ver != FILE_VERSION:
-        raise ValueError("unsupported FineZip file format (cần v%d: hãy nén lại bằng encode() mới)" % FILE_VERSION)
-    if rank_width != (2 if lm.V <= np.iinfo(np.uint16).max + 1 else 4):
+    h = _read_header(blob)
+    fp, cfg, env_now = _fingerprint(lm)
+    if fp != h["fp"]:
+        raise ValueError("mô hình khác lúc nén (tên/vocab/bos/dtype/attention). Cấu hình hiện tại: %s" % json.dumps(cfg))
+    if h["rank_width"] != (2 if lm.V <= np.iinfo(np.uint16).max + 1 else 4):
         raise ValueError("rank width does not match the decoder vocabulary")
+    if env_now != h["env"]:
+        try:
+            a, b = json.loads(h["env"]), json.loads(env_now)
+            diff = {k: (a.get(k), b.get(k)) for k in sorted(set(a) | set(b)) if a.get(k) != b.get(k)}
+        except ValueError:
+            diff = {"env": (h["env"], env_now)}
+        guard = "file có escape (eps=%.3g) nên có thể vẫn đúng" % h["eps"] if h["n_esc"] else \
+                "file KHÔNG có escape nên lossless không được đảm bảo"
+        warnings.warn("môi trường giải nén khác lúc nén %s: %s" % (diff, guard), RuntimeWarning, stacklevel=3)
+    n, nf, n_esc = h["n"], h["nf"], h["n_esc"]
     nb = (nf + 7) // 8
-    flags = np.unpackbits(np.frombuffer(blob, np.uint8, nb, hs))[:nf]
+    flags = np.unpackbits(np.frombuffer(blob, np.uint8, nb, h["off"]))[:nf]
     n_pad = -(-n // MIN_L) * MIN_L
     try:
         leaves = flags_to_layout(flags.tolist(), n_pad)
     except (StopIteration, ValueError) as exc:
         raise ValueError("invalid FineZip layout") from exc
-    off = hs + nb
+    off = h["off"] + nb
     (len_rk,) = struct.unpack_from("<I", blob, off); off += 4
-    dt = np.dtype("<u2" if rank_width == 2 else "<u4")
+    dt = np.dtype("<u2" if h["rank_width"] == 2 else "<u4")
     ranks = np.frombuffer(bz2.decompress(blob[off:off + len_rk]), dtype=dt).astype(np.int64)
     if len(ranks) != sum(L for _, L in leaves):
         raise ValueError("rank count does not match layout")
@@ -414,7 +489,15 @@ def _parse(blob, lm):
     rk, o = {}, 0
     for s, L in leaves:
         rk[s] = ranks[o:o + L]; o += L
-    return n, n_pad, leaves, rk, esc
+    return n, n_pad, leaves, rk, esc, h["plan"]
+
+
+def _groups(leaves, plan):
+    """Các nhóm batch theo đúng kế hoạch trong file: (L, [start,...])."""
+    for L in sorted({l for _, l in leaves}):
+        starts = [s for s, l in leaves if l == L]
+        for i in range(0, len(starts), plan[L]):
+            yield L, starts[i:i + plan[L]]
 
 
 def _decode_group(ss, L, rk, esc, lm):
@@ -432,38 +515,46 @@ def _decode_group(ss, L, rk, esc, lm):
     return dec
 
 
-def decode(blob, lm, batch=8):
-    n, n_pad, leaves, rk, esc = _parse(blob, lm)
+def decode(blob, lm, batch=None):
+    """Giải nén. `batch` được GIỮ để tương thích nhưng BỊ BỎ QUA: kế hoạch batch lấy từ header."""
+    n, n_pad, leaves, rk, esc, plan = _parse(blob, lm)
     out = np.zeros(n_pad, np.int64)
-    for L in sorted({l for _, l in leaves}):
-        starts = [s for s, l in leaves if l == L]
-        eb = lm.batch_size(L, batch) if hasattr(lm, "batch_size") else batch
-        for i in range(0, len(starts), eb):
-            ss = starts[i:i + eb]
-            dec = _decode_group(ss, L, rk, esc, lm)
-            for j, s in enumerate(ss):
-                out[s:s + L] = dec[j]
+    for L, ss in _groups(leaves, plan):
+        dec = _decode_group(ss, L, rk, esc, lm)
+        for j, s in enumerate(ss):
+            out[s:s + L] = dec[j]
     return out[:n]
 
 
-def quick_check(blob, lm, tokens, batch=8, groups_per_L=1):
-    """Giải nén THỬ vài nhóm chunk đầu của mỗi mức L (vài phút) và so với token gốc.
-    Dùng TRƯỚC khi chạy decode đầy đủ (hàng giờ) để biết sớm có bị lệch rank không."""
+def quick_check(blob, lm, tokens, batch=None, groups_per_L=1):
+    """Giải nén THỬ vài nhóm batch đầu của mỗi mức L và so với token gốc (dùng đúng kế hoạch batch trong file).
+    Chạy TRƯỚC decode đầy đủ (hàng giờ). `batch` bị bỏ qua như ở decode()."""
     tokens = np.asarray(tokens)
-    n, n_pad, leaves, rk, esc = _parse(blob, lm)
-    bad = []
-    for L in sorted({l for _, l in leaves}):
-        starts = [s for s, l in leaves if l == L]
-        eb = lm.batch_size(L, batch) if hasattr(lm, "batch_size") else batch
-        for i in range(0, min(len(starts), groups_per_L * eb), eb):
-            ss = starts[i:i + eb]
-            dec = _decode_group(ss, L, rk, esc, lm)
-            for j, s in enumerate(ss):
-                e = min(s + L, n)
-                if e > s and not np.array_equal(dec[j][:e - s], tokens[s:e]):
-                    bad.append((s, L))
+    n, n_pad, leaves, rk, esc, plan = _parse(blob, lm)
+    seen, bad = {}, []
+    for L, ss in _groups(leaves, plan):
+        if seen.get(L, 0) >= groups_per_L:
+            continue
+        seen[L] = seen.get(L, 0) + 1
+        dec = _decode_group(ss, L, rk, esc, lm)
+        for j, s in enumerate(ss):
+            e = min(s + L, n)
+            if e > s and not np.array_equal(dec[j][:e - s], tokens[s:e]):
+                bad.append((s, L))
     print("quick_check:", "OK" if not bad else f"LỆCH ở {bad}")
     return not bad
+
+
+def inspect_blob(blob):
+    """Đọc header + layout, không cần mô hình."""
+    h = _read_header(blob)
+    n_pad = -(-h["n"] // MIN_L) * MIN_L
+    nb = (h["nf"] + 7) // 8
+    flags = np.unpackbits(np.frombuffer(blob, np.uint8, nb, h["off"]))[:h["nf"]]
+    leaves = flags_to_layout(flags.tolist(), n_pad)
+    return {"version": FILE_VERSION, "n_tokens": h["n"], "eps": h["eps"], "n_escapes": h["n_esc"],
+            "batch_plan": h["plan"], "chunk_counts": {L: sum(1 for _, l in leaves if l == L) for L in CTX_SIZES},
+            "env": json.loads(h["env"]), "bytes": len(blob)}
 
 
 def calibrate_eps(lm, toks, L=512, batches=(1, 2, 4, 8), n_chunks=8,
@@ -563,16 +654,32 @@ def demo_gpt2(path="/kaggle/working/FineZip28/notebook/finezip_experiment3.5/dat
 
 
 def demo_noise():
-    """Mô phỏng đúng sự cố: nén với batch 8, giải nén với batch 3 (nhiễu số học khác nhau)."""
     toks = _synthetic(511)[:2000]
-    print("\n--- Nhiễu số học (encode batch=8, decode batch=3), noise=1e-3 ---")
+    mk = lambda **kw: MockLM(V=512, bonus=14.0, noise=1e-3, **kw)
+
+    print("\n--- 1) Đổi tham số batch lúc giải nén: header giữ kế hoạch batch, kết quả không đổi ---")
+    lm = mk()
+    blob, _ = encode(toks, lm, FixedPolicy(256), batch=8)
+    for b in (8, 3, 1):
+        print(f"decode(batch={b}) lossless =", np.array_equal(decode(blob, lm, batch=b), toks))
+    print("header:", {k: v for k, v in inspect_blob(blob).items() if k in ("batch_plan", "eps", "n_escapes", "chunk_counts")})
+
+    print("\n--- 2) Giải nén ở MÔI TRƯỜNG KHÁC (nhiễu khác): chỉ escape mới cứu ---")
     for eps in (None, 0.01):
-        lm = MockLM(V=512, bonus=14.0, noise=1e-3, eps=eps)
-        blob, _ = encode(toks, lm, FixedPolicy(256), batch=8)
-        rec = decode(blob, lm, batch=3)
+        blob, _ = encode(toks, mk(noise_seed=1, eps=eps), FixedPolicy(256), batch=8)
         st = encode.last_stats
-        print(f"eps={eps}: lossless={np.array_equal(rec, toks)}  bytes={len(blob)}  "
-              f"escapes={st['escapes']} ({st['escape_pct']:.2f}% token, {st['esc_bytes']} B)")
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            rec = decode(blob, mk(noise_seed=2))
+        print(f"eps={eps}: lossless={np.array_equal(rec, toks)}  bytes={len(blob)}  escapes={st['escapes']} "
+              f"({st['escape_pct']:.1f}%)  cảnh báo môi trường={bool(w)}")
+
+    print("\n--- 3) Sai mô hình: phải bị từ chối ---")
+    try:
+        decode(blob, MockLM(V=256, bonus=14.0, noise=1e-3))
+        print("KHÔNG bị từ chối (LỖI)")
+    except ValueError as e:
+        print("từ chối đúng:", str(e)[:70])
 
 
 if __name__ == "__main__":

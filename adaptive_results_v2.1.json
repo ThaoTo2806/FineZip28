@@ -1,0 +1,23 @@
+{
+  "policy": "Adaptive-DP-1000-v2",
+  "compressed_bytes": 271367,
+  "compression_ratio": 3.6850464500105025,
+  "encode_seconds": 173.29443609300006,
+  "decode_seconds": 9518.134973539,
+  "decode_gpu_peak_mib": 767.912109375,
+  "lossless": true,
+  "eps": 0.15193939208984375,
+  "escape_stats": {
+    "escapes": 126515,
+    "escape_pct": 44.189043813568794,
+    "esc_bytes": 246453,
+    "total_bytes": 275748
+  },
+  "chunk_counts": {
+    "32": 1,
+    "64": 17,
+    "128": 50,
+    "256": 397,
+    "512": 346
+  }
+}
