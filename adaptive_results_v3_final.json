@@ -1,0 +1,208 @@
+{
+  "1000": {
+    "compressed_bytes": 216534,
+    "ratio": 4.6182123823510395,
+    "encode_seconds": 201.73223026399955,
+    "decode_seconds": 12000.909038617,
+    "decode_gpu_peak_mib": 817.92919921875,
+    "quick_check": true,
+    "lossless": true,
+    "encode_stats": {
+      "escapes": 0,
+      "escape_pct": 0.0,
+      "esc_bytes": 0,
+      "total_bytes": 216534,
+      "header_bytes": 278,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "eps": 0.0
+    },
+    "blob_info": {
+      "version": 3,
+      "n_tokens": 286273,
+      "eps": 0.0,
+      "n_escapes": 0,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "chunk_counts": {
+        "32": 1,
+        "64": 17,
+        "128": 50,
+        "256": 397,
+        "512": 346
+      },
+      "env": {
+        "cuda": "12.8",
+        "gpu": "Tesla T4",
+        "matmul_precision": "highest",
+        "tf32": false,
+        "torch": "2.10.0+cu128"
+      },
+      "bytes": 216534
+    },
+    "chunk_counts": {
+      "32": 1,
+      "64": 17,
+      "128": 50,
+      "256": 397,
+      "512": 346
+    }
+  },
+  "5000": {
+    "compressed_bytes": 238128,
+    "ratio": 4.199422159510851,
+    "encode_seconds": 195.814127761,
+    "quick_check": true,
+    "encode_stats": {
+      "escapes": 0,
+      "escape_pct": 0.0,
+      "esc_bytes": 0,
+      "total_bytes": 238128,
+      "header_bytes": 602,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "eps": 0.0
+    },
+    "blob_info": {
+      "version": 3,
+      "n_tokens": 286273,
+      "eps": 0.0,
+      "n_escapes": 0,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "chunk_counts": {
+        "32": 39,
+        "64": 380,
+        "128": 1401,
+        "256": 292,
+        "512": 13
+      },
+      "env": {
+        "cuda": "12.8",
+        "gpu": "Tesla T4",
+        "matmul_precision": "highest",
+        "tf32": false,
+        "torch": "2.10.0+cu128"
+      },
+      "bytes": 238128
+    }
+  },
+  "12000": {
+    "compressed_bytes": 258127,
+    "ratio": 3.8740619927400077,
+    "encode_seconds": 200.77724875700005,
+    "quick_check": true,
+    "encode_stats": {
+      "escapes": 0,
+      "escape_pct": 0.0,
+      "esc_bytes": 0,
+      "total_bytes": 258127,
+      "header_bytes": 1001,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "eps": 0.0
+    },
+    "blob_info": {
+      "version": 3,
+      "n_tokens": 286273,
+      "eps": 0.0,
+      "n_escapes": 0,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "chunk_counts": {
+        "32": 563,
+        "64": 2694,
+        "128": 703,
+        "256": 23,
+        "512": 0
+      },
+      "env": {
+        "cuda": "12.8",
+        "gpu": "Tesla T4",
+        "matmul_precision": "highest",
+        "tf32": false,
+        "torch": "2.10.0+cu128"
+      },
+      "bytes": 258127
+    }
+  },
+  "40000": {
+    "compressed_bytes": 288012,
+    "ratio": 3.4720775523242087,
+    "encode_seconds": 201.60596387700002,
+    "quick_check": true,
+    "encode_stats": {
+      "escapes": 0,
+      "escape_pct": 0.0,
+      "esc_bytes": 0,
+      "total_bytes": 288012,
+      "header_bytes": 1193,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "eps": 0.0
+    },
+    "blob_info": {
+      "version": 3,
+      "n_tokens": 286273,
+      "eps": 0.0,
+      "n_escapes": 0,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "chunk_counts": {
+        "32": 6735,
+        "64": 1100,
+        "128": 3,
+        "256": 0,
+        "512": 0
+      },
+      "env": {
+        "cuda": "12.8",
+        "gpu": "Tesla T4",
+        "matmul_precision": "highest",
+        "tf32": false,
+        "torch": "2.10.0+cu128"
+      },
+      "bytes": 288012
+    }
+  }
+}
