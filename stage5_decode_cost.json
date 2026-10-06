@@ -1,0 +1,77 @@
+{
+  "100": {
+    "compressed_bytes": 257940,
+    "ratio": 3.876870590059704,
+    "encode_seconds": 164.2910151189999,
+    "quick_check": true,
+    "counts": {
+      "32": 551,
+      "64": 2662,
+      "128": 718,
+      "256": 25,
+      "512": 0
+    },
+    "decode_cost_sum_nL2": 24869888,
+    "effective_L": 86.86531798368168
+  },
+  "300": {
+    "compressed_bytes": 284591,
+    "ratio": 3.5138145619503076,
+    "encode_seconds": 164.26789360400016,
+    "quick_check": true,
+    "counts": {
+      "32": 5987,
+      "64": 1436,
+      "128": 22,
+      "256": 0,
+      "512": 0
+    },
+    "decode_cost_sum_nL2": 12372992,
+    "effective_L": 43.216273611266345
+  },
+  "1000": {
+    "compressed_bytes": 300358,
+    "ratio": 3.3293602967125895,
+    "encode_seconds": 164.42520914000033,
+    "quick_check": true,
+    "counts": {
+      "32": 8931,
+      "64": 8,
+      "128": 0,
+      "256": 0,
+      "512": 0
+    },
+    "decode_cost_sum_nL2": 9178112,
+    "effective_L": 32.057225885771764
+  },
+  "3000": {
+    "compressed_bytes": 300576,
+    "ratio": 3.326945597785585,
+    "encode_seconds": 164.60071811700072,
+    "quick_check": true,
+    "counts": {
+      "32": 8947,
+      "64": 0,
+      "128": 0,
+      "256": 0,
+      "512": 0
+    },
+    "decode_cost_sum_nL2": 9161728,
+    "effective_L": 32.0
+  },
+  "10000": {
+    "compressed_bytes": 300576,
+    "ratio": 3.326945597785585,
+    "encode_seconds": 165.1260934410002,
+    "quick_check": true,
+    "counts": {
+      "32": 8947,
+      "64": 0,
+      "128": 0,
+      "256": 0,
+      "512": 0
+    },
+    "decode_cost_sum_nL2": 9161728,
+    "effective_L": 32.0
+  }
+}
