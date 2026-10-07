@@ -31,6 +31,7 @@ import bz2
 import hashlib
 import json
 import math
+import os
 import struct
 import warnings
 import zlib
@@ -69,18 +70,38 @@ def est_time(L: int) -> float:
 #    Quy ước hạng: sắp giảm dần theo logit, hoà thì token id nhỏ đứng trước (stable).
 # ----------------------------------------------------------------------------
 class HFLM:
-    def __init__(self, name="gpt2", device="cuda", max_batch_tokens=1024, eps=None):
+    def __init__(self, name="gpt2", device="cuda", max_batch_tokens=1024,
+                 eps=None, adapter_path=None, merge_adapter=True):
         import torch
         from transformers import AutoModelForCausalLM
         if max_batch_tokens < 1:
             raise ValueError("max_batch_tokens must be positive")
         self.t, self.device = torch, device
         self.name = name
+        self.adapter_path = adapter_path
         self.max_batch_tokens = max_batch_tokens
         self.eps = eps   # ngưỡng "không ổn định" (logit). None = tắt escape. Hiệu chỉnh bằng calibrate_eps().
         self.model = AutoModelForCausalLM.from_pretrained(name).to(device).eval()
+        if adapter_path is not None:
+            from peft import PeftModel
+            self.model = PeftModel.from_pretrained(self.model, adapter_path).to(device).eval()
+            if merge_adapter:
+                self.model = self.model.merge_and_unload().to(device).eval()
         self.bos = self.model.config.bos_token_id  # GPT-2: 50256
         self.V = self.model.config.vocab_size
+
+    def adapter_fingerprint(self):
+        if self.adapter_path is None:
+            return None
+        digest = hashlib.sha256()
+        for root, _, names in os.walk(self.adapter_path):
+            for name in sorted(names):
+                path = os.path.join(root, name)
+                digest.update(os.path.relpath(path, self.adapter_path).encode())
+                with open(path, "rb") as stream:
+                    for block in iter(lambda: stream.read(1024 * 1024), b""):
+                        digest.update(block)
+        return digest.hexdigest()
 
     def batch_size(self, length, requested):
         """Bound the forward batch by the logits tensor size [B, length, V]."""
@@ -92,7 +113,8 @@ class HFLM:
         t = self.t
         cfg = {"name": self.name, "V": int(self.V), "bos": int(self.bos),
                "dtype": str(next(self.model.parameters()).dtype),
-               "attn": str(getattr(self.model.config, "_attn_implementation", "unknown"))}
+             "attn": str(getattr(self.model.config, "_attn_implementation", "unknown")),
+             "adapter_sha256": self.adapter_fingerprint()}
         env = {"torch": str(t.__version__), "cuda": str(t.version.cuda),
                "gpu": t.cuda.get_device_name(self.device) if str(self.device).startswith("cuda") else "cpu",
                "tf32": bool(t.backends.cuda.matmul.allow_tf32),

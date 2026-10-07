@@ -1,0 +1,754 @@
+{
+  "analysis_seconds": 148.65206369500004,
+  "kappa": {
+    "32": 1.2499349117279053,
+    "64": 1.3009164333343506,
+    "128": 1.3309227228164673,
+    "256": 1.3549165725708008,
+    "512": 1.3696880340576172
+  },
+  "fixed_reference": [
+    [
+      32.0,
+      300576
+    ],
+    [
+      63.996,
+      271704
+    ],
+    [
+      127.975,
+      246976
+    ],
+    [
+      255.932,
+      228006
+    ],
+    [
+      511.846,
+      213691
+    ]
+  ],
+  "pareto_runs": {
+    "AC_86": {
+      "name": "AC-Lbar-86",
+      "compressed_bytes": 258158,
+      "ratio": 3.873596789562981,
+      "encode_seconds": 37.05846651000002,
+      "quick_check": true,
+      "chunk_counts": {
+        "32": 563,
+        "64": 2698,
+        "128": 701,
+        "256": 23,
+        "512": 0
+      },
+      "lbar": 85.99262322566223,
+      "decode_cost_sum_nL2": 24620032,
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 258158,
+        "header_bytes": 1001,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 563,
+          "64": 2698,
+          "128": 701,
+          "256": 23,
+          "512": 0
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 258158
+      },
+      "target_lbar": 86,
+      "matched_lambda": 101.55136331769768,
+      "achieved_lbar_cpu": 85.99262322566223
+    },
+    "AC_164": {
+      "name": "AC-Lbar-164",
+      "compressed_bytes": 238180,
+      "ratio": 4.198505332101772,
+      "encode_seconds": 32.19755419599994,
+      "quick_check": true,
+      "chunk_counts": {
+        "32": 39,
+        "64": 380,
+        "128": 1409,
+        "256": 288,
+        "512": 13
+      },
+      "lbar": 164.03442494690958,
+      "decode_cost_sum_nL2": 46963712,
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 238180,
+        "header_bytes": 603,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 39,
+          "64": 380,
+          "128": 1409,
+          "256": 288,
+          "512": 13
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 238180
+      },
+      "target_lbar": 164,
+      "matched_lambda": 42.32646760475986,
+      "achieved_lbar_cpu": 164.03442494690958
+    },
+    "AC_411": {
+      "name": "AC-Lbar-411",
+      "compressed_bytes": 216534,
+      "ratio": 4.6182123823510395,
+      "encode_seconds": 31.245380223999973,
+      "quick_check": true,
+      "chunk_counts": {
+        "32": 1,
+        "64": 17,
+        "128": 50,
+        "256": 397,
+        "512": 346
+      },
+      "lbar": 410.78529115904774,
+      "decode_cost_sum_nL2": 117609472,
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 216534,
+        "header_bytes": 278,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 1,
+          "64": 17,
+          "128": 50,
+          "256": 397,
+          "512": 346
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 216534
+      },
+      "target_lbar": 411,
+      "matched_lambda": 8.396644832328986,
+      "achieved_lbar_cpu": 410.78529115904774
+    },
+    "calibrated_86": {
+      "name": "calibrated-Lbar-86",
+      "compressed_bytes": 259387,
+      "ratio": 3.8552433236823744,
+      "encode_seconds": 31.405107932999954,
+      "quick_check": true,
+      "chunk_counts": {
+        "32": 1675,
+        "64": 2088,
+        "128": 672,
+        "256": 51,
+        "512": 0
+      },
+      "lbar": 85.99262322566223,
+      "decode_cost_sum_nL2": 24620032,
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 259387,
+        "header_bytes": 987,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 1675,
+          "64": 2088,
+          "128": 672,
+          "256": 51,
+          "512": 0
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 259387
+      },
+      "target_lbar": 86,
+      "matched_lambda": 103.04109595131642,
+      "achieved_lbar_cpu": 85.99262322566223
+    },
+    "calibrated_164": {
+      "name": "calibrated-Lbar-164",
+      "compressed_bytes": 239271,
+      "ratio": 4.17936147715352,
+      "encode_seconds": 30.92812049300005,
+      "quick_check": true,
+      "chunk_counts": {
+        "32": 397,
+        "64": 741,
+        "128": 1151,
+        "256": 240,
+        "512": 34
+      },
+      "lbar": 163.9557393539734,
+      "decode_cost_sum_nL2": 46941184,
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 239271,
+        "header_bytes": 666,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 397,
+          "64": 741,
+          "128": 1151,
+          "256": 240,
+          "512": 34
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 239271
+      },
+      "target_lbar": 164,
+      "matched_lambda": 48.052645105795534,
+      "achieved_lbar_cpu": 163.9557393539734
+    },
+    "calibrated_411": {
+      "name": "calibrated-Lbar-411",
+      "compressed_bytes": 216684,
+      "ratio": 4.615015414151483,
+      "encode_seconds": 30.98999113700029,
+      "quick_check": true,
+      "chunk_counts": {
+        "32": 11,
+        "64": 30,
+        "128": 93,
+        "256": 355,
+        "512": 354
+      },
+      "lbar": 411.1787191237286,
+      "decode_cost_sum_nL2": 117722112,
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 216684,
+        "header_bytes": 285,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 11,
+          "64": 30,
+          "128": 93,
+          "256": 355,
+          "512": 354
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 216684
+      },
+      "target_lbar": 411,
+      "matched_lambda": 8.266999251574424,
+      "achieved_lbar_cpu": 411.1787191237286
+    },
+    "rank-proxy_86": {
+      "name": "rank-proxy-Lbar-86",
+      "compressed_bytes": 257584,
+      "ratio": 3.8822287098577553,
+      "encode_seconds": 31.476450104999913,
+      "quick_check": true,
+      "chunk_counts": {
+        "32": 443,
+        "64": 2684,
+        "128": 764,
+        "256": 10,
+        "512": 0
+      },
+      "lbar": 85.99262322566223,
+      "decode_cost_sum_nL2": 24620032,
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 257584,
+        "header_bytes": 995,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 443,
+          "64": 2684,
+          "128": 764,
+          "256": 10,
+          "512": 0
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 257584
+      },
+      "target_lbar": 86,
+      "matched_lambda": 94.50029523084875,
+      "achieved_lbar_cpu": 85.99262322566223
+    },
+    "rank-proxy_164": {
+      "name": "rank-proxy-Lbar-164",
+      "compressed_bytes": 237893,
+      "ratio": 4.203570512793567,
+      "encode_seconds": 30.664498216000084,
+      "quick_check": true,
+      "chunk_counts": {
+        "32": 15,
+        "64": 240,
+        "128": 1445,
+        "256": 328,
+        "512": 3
+      },
+      "lbar": 164.00581200402368,
+      "decode_cost_sum_nL2": 46955520,
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 237893,
+        "header_bytes": 581,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 15,
+          "64": 240,
+          "128": 1445,
+          "256": 328,
+          "512": 3
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 237893
+      },
+      "target_lbar": 164,
+      "matched_lambda": 36.56657289941231,
+      "achieved_lbar_cpu": 164.00581200402368
+    },
+    "rank-proxy_411": {
+      "name": "rank-proxy-Lbar-411",
+      "compressed_bytes": 216280,
+      "ratio": 4.6236360273719255,
+      "encode_seconds": 31.2144691540002,
+      "quick_check": true,
+      "chunk_counts": {
+        "32": 1,
+        "64": 1,
+        "128": 32,
+        "256": 416,
+        "512": 343
+      },
+      "lbar": 411.1286464736783,
+      "decode_cost_sum_nL2": 117707776,
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 216280,
+        "header_bytes": 273,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 1,
+          "64": 1,
+          "128": 32,
+          "256": 416,
+          "512": 343
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 216280
+      },
+      "target_lbar": 411,
+      "matched_lambda": 7.9984504916521155,
+      "achieved_lbar_cpu": 411.1286464736783
+    }
+  },
+  "pareto_points": [
+    {
+      "name": "AC Lbar~86",
+      "lbar": 85.99262322566223,
+      "bytes": 258158
+    },
+    {
+      "name": "AC Lbar~164",
+      "lbar": 164.03442494690958,
+      "bytes": 238180
+    },
+    {
+      "name": "AC Lbar~411",
+      "lbar": 410.78529115904774,
+      "bytes": 216534
+    },
+    {
+      "name": "calibrated Lbar~86",
+      "lbar": 85.99262322566223,
+      "bytes": 259387
+    },
+    {
+      "name": "calibrated Lbar~164",
+      "lbar": 163.9557393539734,
+      "bytes": 239271
+    },
+    {
+      "name": "calibrated Lbar~411",
+      "lbar": 411.1787191237286,
+      "bytes": 216684
+    },
+    {
+      "name": "rank-proxy Lbar~86",
+      "lbar": 85.99262322566223,
+      "bytes": 257584
+    },
+    {
+      "name": "rank-proxy Lbar~164",
+      "lbar": 164.00581200402368,
+      "bytes": 237893
+    },
+    {
+      "name": "rank-proxy Lbar~411",
+      "lbar": 411.1286464736783,
+      "bytes": 216280
+    }
+  ],
+  "feature_results": {
+    "entropy": {
+      "cuts": [
+        6.03578251364414,
+        6.061796628502828,
+        6.278337792591301
+      ],
+      "labels": [
+        256,
+        128,
+        256,
+        128
+      ],
+      "evaluation": {
+        "J_policy": 827606.3891601562,
+        "J_oracle_block": 824359.7639160156,
+        "J_best_fixed": 835174.7062988281,
+        "gain_captured": 0.6998018917511498
+      }
+    },
+    "repeat": {
+      "cuts": [
+        0.4129158512720157,
+        0.7455968688845401
+      ],
+      "labels": [
+        128,
+        256,
+        512
+      ],
+      "evaluation": {
+        "J_policy": 826727.2309570312,
+        "J_oracle_block": 824359.7639160156,
+        "J_best_fixed": 835174.7062988281,
+        "gain_captured": 0.7810929584998909
+      }
+    },
+    "llm32": {
+      "cuts": [
+        6.015919625759125,
+        7.276070386171341
+      ],
+      "labels": [
+        256,
+        128,
+        256
+      ],
+      "evaluation": {
+        "J_policy": 831261.6220703125,
+        "J_oracle_block": 824359.7639160156,
+        "J_best_fixed": 835174.7062988281,
+        "gain_captured": 0.36182201347040377
+      }
+    }
+  },
+  "best_feature": "repeat",
+  "feature_policy": {
+    "name": "ThresholdPolicy-repeat",
+    "compressed_bytes": 239411,
+    "ratio": 4.1769175184097636,
+    "encode_seconds": 34.19703702100014,
+    "quick_check": true,
+    "chunk_counts": {
+      "32": 1,
+      "64": 1,
+      "128": 1680,
+      "256": 254,
+      "512": 12
+    },
+    "lbar": 165.28624119816698,
+    "decode_cost_sum_nL2": 47322112,
+    "encode_stats": {
+      "escapes": 0,
+      "escape_pct": 0.0,
+      "esc_bytes": 0,
+      "total_bytes": 239411,
+      "header_bytes": 562,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "eps": 0.0
+    },
+    "blob_info": {
+      "version": 3,
+      "n_tokens": 286273,
+      "eps": 0.0,
+      "n_escapes": 0,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "chunk_counts": {
+        "32": 1,
+        "64": 1,
+        "128": 1680,
+        "256": 254,
+        "512": 12
+      },
+      "env": {
+        "cuda": "12.8",
+        "gpu": "Tesla T4",
+        "matmul_precision": "highest",
+        "tf32": false,
+        "torch": "2.10.0+cu128"
+      },
+      "bytes": 239411
+    }
+  }
+}
