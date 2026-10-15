@@ -1,0 +1,269 @@
+{
+  "dataset_bytes": 1000000,
+  "dataset_tokens": 286273,
+  "adapter_path": "/kaggle/working/FineZip28/notebook/finezip_experiment3.5/lora_gpt2_1mb",
+  "adapter_bytes": 6817985,
+  "adapter_sha256": "ff9390279eaa32cf02505dd3b340c1dd4aa668a541b1987efbb9d3bf31f16f2d",
+  "base": {
+    "fixed512": {
+      "name": "Base-Fixed-512",
+      "compressed_bytes": 213691,
+      "ratio_without_adapter": 4.679654267142744,
+      "encode_seconds": 26.01066349900003,
+      "quick_check": true,
+      "lbar": 511.8462054319884,
+      "chunk_counts": {
+        "32": 1,
+        "64": 1,
+        "128": 0,
+        "256": 0,
+        "512": 559
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 1,
+          "64": 1,
+          "128": 0,
+          "256": 0,
+          "512": 559
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 213691
+      },
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 213691,
+        "header_bytes": 215,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      }
+    },
+    "adaptive1000": {
+      "name": "Base-Adaptive-DP-1000",
+      "compressed_bytes": 216534,
+      "ratio_without_adapter": 4.6182123823510395,
+      "encode_seconds": 174.26244635399996,
+      "quick_check": true,
+      "lbar": 410.78529115904774,
+      "chunk_counts": {
+        "32": 1,
+        "64": 17,
+        "128": 50,
+        "256": 397,
+        "512": 346
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 1,
+          "64": 17,
+          "128": 50,
+          "256": 397,
+          "512": 346
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 216534
+      },
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 216534,
+        "header_bytes": 278,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      }
+    }
+  },
+  "lora": {
+    "fixed512": {
+      "name": "LoRA-Fixed-512",
+      "compressed_bytes": 209447,
+      "ratio_without_adapter": 4.774477552793786,
+      "encode_seconds": 29.26311539800008,
+      "quick_check": true,
+      "lbar": 511.8462054319884,
+      "chunk_counts": {
+        "32": 1,
+        "64": 1,
+        "128": 0,
+        "256": 0,
+        "512": 559
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 1,
+          "64": 1,
+          "128": 0,
+          "256": 0,
+          "512": 559
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 209447
+      },
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 209447,
+        "header_bytes": 215,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      }
+    },
+    "adaptive1000": {
+      "name": "LoRA-Adaptive-DP-1000",
+      "compressed_bytes": 212371,
+      "ratio_without_adapter": 4.708740835613149,
+      "encode_seconds": 174.5379217059999,
+      "quick_check": true,
+      "lbar": 413.417681904549,
+      "chunk_counts": {
+        "32": 1,
+        "64": 1,
+        "128": 24,
+        "256": 412,
+        "512": 347
+      },
+      "blob_info": {
+        "version": 3,
+        "n_tokens": 286273,
+        "eps": 0.0,
+        "n_escapes": 0,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "chunk_counts": {
+          "32": 1,
+          "64": 1,
+          "128": 24,
+          "256": 412,
+          "512": 347
+        },
+        "env": {
+          "cuda": "12.8",
+          "gpu": "Tesla T4",
+          "matmul_precision": "highest",
+          "tf32": false,
+          "torch": "2.10.0+cu128"
+        },
+        "bytes": 212371
+      },
+      "encode_stats": {
+        "escapes": 0,
+        "escape_pct": 0.0,
+        "esc_bytes": 0,
+        "total_bytes": 212371,
+        "header_bytes": 271,
+        "batch_plan": {
+          "32": 8,
+          "64": 8,
+          "128": 8,
+          "256": 4,
+          "512": 2
+        },
+        "eps": 0.0
+      }
+    }
+  },
+  "ablation": {
+    "fixed512": {
+      "base_bytes": 213691,
+      "lora_model_bytes": 209447,
+      "adapter_bytes": 6817985,
+      "lora_total_bytes": 7027432,
+      "base_ratio": 4.679654267142744,
+      "lora_ratio_without_adapter": 4.774477552793786,
+      "lora_ratio_with_adapter": 0.14229949147853727,
+      "compressed_change_percent": -1.9860452709753815,
+      "base_quick_check": true,
+      "lora_quick_check": true
+    },
+    "adaptive1000": {
+      "base_bytes": 216534,
+      "lora_model_bytes": 212371,
+      "adapter_bytes": 6817985,
+      "lora_total_bytes": 7030356,
+      "base_ratio": 4.6182123823510395,
+      "lora_ratio_without_adapter": 4.708740835613149,
+      "lora_ratio_with_adapter": 0.1422403076031996,
+      "compressed_change_percent": -1.9225618147727346,
+      "base_quick_check": true,
+      "lora_quick_check": true
+    }
+  }
+}

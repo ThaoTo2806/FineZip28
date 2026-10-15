@@ -1,0 +1,76 @@
+{
+  "fixed512": {
+    "name": "Base-Fixed-512",
+    "compressed_bytes": 213691,
+    "decode_seconds": 13516.677884265002,
+    "decode_peak_mib": 768.537109375,
+    "lossless": true,
+    "blob_info": {
+      "version": 3,
+      "n_tokens": 286273,
+      "eps": 0.0,
+      "n_escapes": 0,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "chunk_counts": {
+        "32": 1,
+        "64": 1,
+        "128": 0,
+        "256": 0,
+        "512": 559
+      },
+      "env": {
+        "cuda": "12.8",
+        "gpu": "Tesla T4",
+        "matmul_precision": "highest",
+        "tf32": false,
+        "torch": "2.10.0+cu128"
+      },
+      "bytes": 213691
+    }
+  },
+  "adaptive1000": {
+    "name": "Base-Adaptive-DP-1000",
+    "compressed_bytes": 216534,
+    "decode_seconds": 10833.343960682,
+    "decode_peak_mib": 768.537109375,
+    "lossless": true,
+    "blob_info": {
+      "version": 3,
+      "n_tokens": 286273,
+      "eps": 0.0,
+      "n_escapes": 0,
+      "batch_plan": {
+        "32": 8,
+        "64": 8,
+        "128": 8,
+        "256": 4,
+        "512": 2
+      },
+      "chunk_counts": {
+        "32": 1,
+        "64": 17,
+        "128": 50,
+        "256": 397,
+        "512": 346
+      },
+      "env": {
+        "cuda": "12.8",
+        "gpu": "Tesla T4",
+        "matmul_precision": "highest",
+        "tf32": false,
+        "torch": "2.10.0+cu128"
+      },
+      "bytes": 216534
+    }
+  },
+  "fixed512_encode_seconds": 25.28941130299995,
+  "adaptive1000_encode_seconds": 183.49311165100016,
+  "decode_time_saving_percent": 19.852022416741306,
+  "adaptive_size_change_percent_vs_fixed512": 1.3304257081486748
+}
