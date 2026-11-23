@@ -1,0 +1,20 @@
+{
+  "project": "FineZip28",
+  "status": "FINAL_EXPORT_VERIFIED",
+  "source_commit": "62f09e3105296d62c39e8d95cf8b8775e63f2677",
+  "original_stage10_manifest_entries": 71,
+  "export_source_files": 213,
+  "source_group_counts": {
+    "stage10-final-evidence": 72,
+    "stage10-final-artifacts": 39,
+    "stage11": 102
+  },
+  "zip_filename": "FineZip28_FINAL_RESEARCH_EVIDENCE.zip",
+  "zip_bytes": 5251225,
+  "zip_sha256": "23e726fbc0d435ba559db97956ee9f3665e5b7295c3c290cfd349a4ed1ef4a9a",
+  "embedded_manifest_verified": true,
+  "all_archive_members_verified": true,
+  "zip_crc_verified": true,
+  "gpu_used": false,
+  "manuscript_submission_ready": false
+}
